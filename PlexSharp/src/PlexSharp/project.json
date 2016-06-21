@@ -1,0 +1,31 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "NETStandard.Library": "1.5.0-rc2-24027",
+    "RestSharp": "105.2.3"
+  },
+
+  "frameworks": {
+    "net451": {
+      "dependencies": {
+        "RestSharp.Newtonsoft.Json": "1.0.0",
+      }
+    },
+    "net452": {
+      "dependencies": {
+        "RestSharp.Newtonsoft.Json": "1.0.0"
+      }
+    },
+    "net46": {
+      "dependencies": {
+        "RestSharp.Newtonsoft.Json": "1.0.0"
+      }
+    },
+    "net45": {
+      "dependencies": {
+        "RestSharp.Newtonsoft.Json": "1.0.0"
+      }
+    }
+  }
+}
