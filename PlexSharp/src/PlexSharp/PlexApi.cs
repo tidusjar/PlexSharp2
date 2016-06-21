@@ -61,43 +61,80 @@ namespace PlexSharp
         private const string GetAccountUri = "https://plex.tv/users/account";
         private static string Version { get; }
 
-        //public PlexAuthentication SignIn(string username, string password)
-        //{
-        //    var userModel = new PlexUserRequest
-        //    {
-        //        user = new UserRequest
-        //        {
-        //            password = password,
-        //            login = username
-        //        }
-        //    };
-        //    var request = new RestRequest
-        //    {
-        //        Method = Method.POST
-        //    };
+        public PlexAuthentication SignIn(string username, string password)
+        {
+            var userModel = new PlexUserRequest
+            {
+                User = new UserRequest
+                {
+                    Password = password,
+                    Login = username
+                }
+            };
+            var request = new RestRequest
+            {
+                Method = Method.POST
+            };
 
-        //    AddHeaders(ref request);
+            AddHeaders(ref request);
 
-        //    request.AddJsonBody(userModel);
+            request.AddJsonBody(userModel);
 
-        //    var obj = Api.Execute<PlexAuthentication>(request, new Uri(SignInUri));
+            var obj = Api.Execute<PlexAuthentication>(request, new Uri(SignInUri));
 
-        //    return obj;
-        //}
+            return obj;
+        }
 
-        //public PlexFriends GetUsers(string authToken)
-        //{
-        //    var request = new RestRequest
-        //    {
-        //        Method = Method.GET,
-        //    };
+        public async Task<PlexAuthentication> SignInAsync(string username, string password)
+        {
+            var userModel = new PlexUserRequest
+            {
+                User = new UserRequest
+                {
+                    Password = password,
+                    Login = username
+                }
+            };
+            var request = new RestRequest
+            {
+                Method = Method.POST
+            };
 
-        //    AddHeaders(ref request, authToken);
+            AddHeaders(ref request);
 
-        //    var users = Api.ExecuteXml<PlexFriends>(request, new Uri(FriendsUri));
+            request.AddJsonBody(userModel);
 
-        //    return users;
-        //}
+            var obj = await Api.ExecuteAsync<PlexAuthentication>(request, new Uri(SignInUri));
+
+            return obj;
+        }
+
+        public PlexFriends GetUsers(string authToken)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+            };
+
+            AddHeaders(ref request, authToken);
+
+            var users = Api.Execute<PlexFriendsWrapper>(request, new Uri(FriendsUri));
+
+            return users.PlexFriends;
+        }
+        public async Task<PlexFriends> GetUsersAsync(string authToken)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+            };
+
+            AddHeaders(ref request, authToken);
+
+            var users = await Api.ExecuteAsync<PlexFriendsWrapper>(request, new Uri(FriendsUri));
+
+            return users.PlexFriends;
+        }
 
         /// <summary>
         /// Gets the users.
