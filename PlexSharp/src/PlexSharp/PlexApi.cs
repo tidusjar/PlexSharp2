@@ -143,35 +143,65 @@ namespace PlexSharp
         /// <param name="searchTerm">The search term.</param>
         /// <param name="plexFullHost">The full plex host.</param>
         /// <returns></returns>
-        //public PlexSearch SearchContent(string authToken, string searchTerm, Uri plexFullHost)
-        //{
-        //    var request = new RestRequest
-        //    {
-        //        Method = Method.GET,
-        //        Resource = "search?query={searchTerm}"
-        //    };
+        public PlexSearch SearchContent(string authToken, string searchTerm, Uri plexFullHost)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+                Resource = "search?query={searchTerm}"
+            };
 
-        //    request.AddUrlSegment("searchTerm", searchTerm);
-        //    AddHeaders(ref request, authToken);
+            request.AddUrlSegment("searchTerm", searchTerm);
+            AddHeaders(ref request, authToken);
 
-        //    var search = Api.ExecuteXml<PlexSearch>(request, plexFullHost);
+            var search = Api.Execute<PlexSearchWrapper>(request, plexFullHost);
 
-        //    return search;
-        //}
+            return search.PlexSearch;
+        }
 
-        //public PlexStatus GetStatus(string authToken, Uri uri)
-        //{
-        //    var request = new RestRequest
-        //    {
-        //        Method = Method.GET,
-        //    };
+        public async Task<PlexSearch> SearchContentAsync(string authToken, string searchTerm, Uri plexFullHost)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+                Resource = "search?query={searchTerm}"
+            };
 
-        //    AddHeaders(ref request, authToken);
+            request.AddUrlSegment("searchTerm", searchTerm);
+            AddHeaders(ref request, authToken);
 
-        //    var users = Api.ExecuteXml<PlexStatus>(request, uri);
+            var search = await Api.ExecuteAsync<PlexSearchWrapper>(request, plexFullHost);
 
-        //    return users;
-        //}
+            return search.PlexSearch;
+        }
+
+        public PlexStatus GetStatus(string authToken, Uri uri)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+            };
+
+            AddHeaders(ref request, authToken);
+
+            var users = Api.Execute<PlexStatusWrapper>(request, uri);
+
+            return users.PlexStatus;
+        }
+
+        public async Task<PlexStatus> GetStatusAsync(string authToken, Uri uri)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+            };
+
+            AddHeaders(ref request, authToken);
+
+            var users = await Api.ExecuteAsync<PlexStatusWrapper>(request, uri);
+
+            return users.PlexStatus;
+        }
 
         public PlexAccount GetAccount(string authToken)
         {
@@ -201,38 +231,67 @@ namespace PlexSharp
             return account.PlexAccount;
         }
 
-        //public PlexLibraries GetLibrarySections(string authToken, Uri plexFullHost)
-        //{
-        //    var request = new RestRequest
-        //    {
-        //        Method = Method.GET,
-        //        Resource = "library/sections"
-        //    };
+        public PlexLibraries GetLibrarySections(string authToken, Uri plexFullHost)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+                Resource = "library/sections"
+            };
 
-        //    AddHeaders(ref request, authToken);
+            AddHeaders(ref request, authToken);
 
-        //    var lib = Api.ExecuteXml<PlexLibraries>(request, plexFullHost);
+            var lib = Api.Execute<PlexLibrariesWrapper>(request, plexFullHost);
 
-        //    return lib;
-        //}
+            return lib.PlexLibraries;
+        }
 
-        //public PlexSearch GetLibrary(string authToken, Uri plexFullHost, string libraryId)
-        //{
-        //    var request = new RestRequest
-        //    {
-        //        Method = Method.GET,
-        //        Resource = "library/sections/{libraryId}/all"
-        //    };
+        public async Task<PlexLibraries> GetLibrarySectionsAsync(string authToken, Uri plexFullHost)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+                Resource = "library/sections"
+            };
 
-        //    request.AddUrlSegment("libraryId", libraryId);
-        //    AddHeaders(ref request, authToken);
+            AddHeaders(ref request, authToken);
 
+            var lib = await Api.ExecuteAsync<PlexLibrariesWrapper>(request, plexFullHost);
 
-        //    var lib = Api.ExecuteXml<PlexSearch>(request, plexFullHost);
+            return lib.PlexLibraries;
+        }
 
-        //    return lib;
+        public PlexSearch GetLibrary(string authToken, Uri plexFullHost, string libraryId)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+                Resource = "library/sections/{libraryId}/all"
+            };
 
-        //}
+            request.AddUrlSegment("libraryId", libraryId);
+            AddHeaders(ref request, authToken);
+
+            var lib = Api.Execute<PlexSearchWrapper>(request, plexFullHost);
+
+            return lib.PlexSearch;
+        }
+
+        public async Task<PlexSearch> GetLibraryAsync(string authToken, Uri plexFullHost, string libraryId)
+        {
+            var request = new RestRequest
+            {
+                Method = Method.GET,
+                Resource = "library/sections/{libraryId}/all"
+            };
+
+            request.AddUrlSegment("libraryId", libraryId);
+            AddHeaders(ref request, authToken);
+
+            var lib = await Api.ExecuteAsync<PlexSearchWrapper>(request, plexFullHost);
+
+            return lib.PlexSearch;
+        }
 
         private void AddHeaders(ref RestRequest request, string authToken)
         {
