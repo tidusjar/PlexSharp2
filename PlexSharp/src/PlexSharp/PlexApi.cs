@@ -73,7 +73,8 @@ namespace PlexSharp
             };
             var request = new RestRequest
             {
-                Method = Method.POST
+                Method = Method.POST,
+                RequestFormat = DataFormat.Json
             };
 
             AddHeaders(ref request);

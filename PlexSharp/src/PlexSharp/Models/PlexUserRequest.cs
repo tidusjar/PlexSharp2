@@ -1,19 +1,21 @@
 ﻿
 using Newtonsoft.Json;
 
+using RestSharp.Deserializers;
+
 namespace PlexSharp.Models
 {
     public class PlexUserRequest
     {
-        [JsonProperty("user")]
+        [DeserializeAs(Name= "user")]
         public UserRequest User { get; set; }
     }
 
     public class UserRequest
     {
-        [JsonProperty("login")]
+        [DeserializeAs(Name = "login")]
         public string Login { get; set; }
-        [JsonProperty("password")]
+        [DeserializeAs(Name = "password")]
         public string Password { get; set; }
     }
 }

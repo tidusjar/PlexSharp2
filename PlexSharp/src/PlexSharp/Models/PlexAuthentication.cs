@@ -8,6 +8,8 @@ namespace PlexSharp.Models
     {
         [JsonProperty("user")]
         public User User { get; set; }
+        [JsonProperty("error")]
+        public string Error { get; set; }
     }
     public class Subscription
     {
@@ -24,7 +26,7 @@ namespace PlexSharp.Models
     public class Roles
     {
         [JsonProperty("roles")]
-        public List<object> Roles { get; set; }
+        public List<object> RolesList { get; set; }
     }
 
     public class User

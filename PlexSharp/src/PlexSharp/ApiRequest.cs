@@ -41,7 +41,8 @@ namespace PlexSharp
         private readonly JsonSerializer _settings = new JsonSerializer
         {
             NullValueHandling = NullValueHandling.Ignore,
-            MissingMemberHandling = MissingMemberHandling.Ignore
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+           
         };
 
         /// <summary>
@@ -56,9 +57,9 @@ namespace PlexSharp
         /// <exception cref="ApiRequestException"></exception>
         public T Execute<T>(IRestRequest request, Uri baseUri) where T : new()
         {
-            request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
+            //request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
             var client = new RestClient { BaseUrl = baseUri };
-
+            
             var response = client.Execute<T>(request);
 
             if (response.ErrorException != null)
