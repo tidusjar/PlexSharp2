@@ -25,9 +25,12 @@
 //  ************************************************************************/
 #endregion
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-
+using System.Xml;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 using PlexSharp.Interfaces;
 
@@ -38,13 +41,6 @@ namespace PlexSharp
 {
     internal class ApiRequest : IApiRequest
     {
-        private readonly JsonSerializer _settings = new JsonSerializer
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            MissingMemberHandling = MissingMemberHandling.Ignore,
-           
-        };
-
         /// <summary>
         /// An API request handler
         /// </summary>
@@ -57,11 +53,10 @@ namespace PlexSharp
         /// <exception cref="ApiRequestException"></exception>
         public T Execute<T>(IRestRequest request, Uri baseUri) where T : new()
         {
-            //request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
             var client = new RestClient { BaseUrl = baseUri };
-            
-            var response = client.Execute<T>(request);
 
+            var response = client.Execute(request);
+            var json = response.Content;
             if (response.ErrorException != null)
             {
                 var message = "Error retrieving response. Check inner details for more info.";
@@ -69,12 +64,21 @@ namespace PlexSharp
                 throw new ApiRequestException(message, response.ErrorException);
             }
 
-            return response.Data;
+            if (IsXmlDocument(response.Content))
+            {
+                var doc = new XmlDocument();
+                doc.LoadXml(json);
+                json = JsonConvert.SerializeXmlNode(doc); // convert it into JSON
+                Debug.WriteLine(json);
+            }
+
+
+            var obj = JsonConvert.DeserializeObject<T>(json);
+            return obj;
         }
 
         public async Task<T> ExecuteAsync<T>(IRestRequest request, Uri baseUri) where T : new()
         {
-            request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
             var client = new RestClient { BaseUrl = baseUri };
 
             var response = await client.ExecuteTaskAsync<T>(request);
@@ -98,7 +102,6 @@ namespace PlexSharp
         /// <exception cref="ApiRequestException"></exception>
         public IRestResponse Execute(IRestRequest request, Uri baseUri)
         {
-            request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
             var client = new RestClient { BaseUrl = baseUri };
 
             var response = client.Execute(request);
@@ -114,7 +117,6 @@ namespace PlexSharp
 
         public async Task<IRestResponse> ExecuteAsync(IRestRequest request, Uri baseUri)
         {
-            request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
             var client = new RestClient { BaseUrl = baseUri };
 
             var response = await client.ExecuteTaskAsync(request);
@@ -126,6 +128,11 @@ namespace PlexSharp
             }
 
             return response;
+        }
+
+        private bool IsXmlDocument(string response)
+        {
+            return response.TrimStart().StartsWith("<", StringComparison.Ordinal);
         }
     }
 }

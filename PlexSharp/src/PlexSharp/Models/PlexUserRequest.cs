@@ -7,15 +7,15 @@ namespace PlexSharp.Models
 {
     public class PlexUserRequest
     {
-        [DeserializeAs(Name= "user")]
+        [JsonProperty("user")]
         public UserRequest User { get; set; }
     }
 
     public class UserRequest
     {
-        [DeserializeAs(Name = "login")]
+        [JsonProperty("login")]
         public string Login { get; set; }
-        [DeserializeAs(Name = "password")]
+        [JsonProperty("password")]
         public string Password { get; set; }
     }
 }

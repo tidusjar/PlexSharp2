@@ -1516,6 +1516,19 @@
         "runtime": {
           "lib/net45/_._": {}
         }
+      },
+      "System.Xml.XmlDocument/4.0.1-rc2-24027": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.Xml",
+          "mscorlib"
+        ],
+        "compile": {
+          "ref/net46/System.Xml.XmlDocument.dll": {}
+        },
+        "runtime": {
+          "lib/net46/System.Xml.XmlDocument.dll": {}
+        }
       }
     }
   },
@@ -3868,6 +3881,42 @@
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
       ]
+    },
+    "System.Xml.XmlDocument/4.0.1-rc2-24027": {
+      "sha512": "9Dll6QjHF9ECoBG+bPgfiEC0B8URbG+PRuI/QLfemn/OQYG+PBfh+hK/Svfxx8d8AqhXA7pnUzOXRYNlRQ5zAQ==",
+      "type": "package",
+      "files": [
+        "System.Xml.XmlDocument.4.0.1-rc2-24027.nupkg.sha512",
+        "System.Xml.XmlDocument.nuspec",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/System.Xml.XmlDocument.dll",
+        "lib/netstandard1.3/System.Xml.XmlDocument.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net46/System.Xml.XmlDocument.dll",
+        "ref/netstandard1.3/System.Xml.XmlDocument.dll",
+        "ref/netstandard1.3/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/de/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/es/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/fr/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/it/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/ja/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/ko/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/ru/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/zh-hans/System.Xml.XmlDocument.xml",
+        "ref/netstandard1.3/zh-hant/System.Xml.XmlDocument.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._"
+      ]
     }
   },
   "projectFileDependencyGroups": {
@@ -3876,16 +3925,21 @@
       "RestSharp >= 105.2.3"
     ],
     ".NETFramework,Version=v4.5": [
-      "RestSharp.Newtonsoft.Json >= 1.0.0"
+      "RestSharp.Newtonsoft.Json >= 1.0.0",
+      "System.XML >= 4.0.0"
     ],
     ".NETFramework,Version=v4.5.1": [
-      "RestSharp.Newtonsoft.Json >= 1.0.0"
+      "RestSharp.Newtonsoft.Json >= 1.0.0",
+      "System.XML >= 4.0.0"
     ],
     ".NETFramework,Version=v4.5.2": [
-      "RestSharp.Newtonsoft.Json >= 1.0.0"
+      "RestSharp.Newtonsoft.Json >= 1.0.0",
+      "System.XML >= 4.0.0"
     ],
     ".NETFramework,Version=v4.6": [
-      "RestSharp.Newtonsoft.Json >= 1.0.0"
+      "RestSharp.Newtonsoft.Json >= 1.0.0",
+      "System.Xml >= 4.0.0",
+      "System.Xml.XmlDocument >= 4.0.1-rc2-24027"
     ]
   },
   "tools": {},

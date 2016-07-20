@@ -5,6 +5,8 @@
 // without the express permission of a director of Exclaimer Ltd
 // ---------------------------------------------------------------
 #endregion
+using System.Collections.Generic;
+
 using Newtonsoft.Json;
 
 namespace PlexSharp.Models
@@ -37,8 +39,9 @@ namespace PlexSharp.Models
     public class UserFriends
     {
         [JsonProperty("Server")]
-        public Server Server { get; set; }
-        [JsonProperty("id")]
+        [JsonConverter(typeof(SingleValueArrayConverter<Server>))]
+        public List<Server> Server { get; set; }
+        [JsonProperty("@id")]
         public string Id { get; set; }
         [JsonProperty("title")]
         public string Title { get; set; }

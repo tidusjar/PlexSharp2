@@ -26,12 +26,18 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json;
 
 using PlexSharp.Interfaces;
 using PlexSharp.Models;
 
 using RestSharp;
+using RestSharp.Newtonsoft.Json;
+
+using RestRequest = RestSharp.RestRequest;
 
 namespace PlexSharp
 {
@@ -41,6 +47,12 @@ namespace PlexSharp
         {
             Version = Guid.NewGuid().ToString("N");
         }
+
+        private readonly JsonSerializer _settings = new JsonSerializer
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore
+        };
 
         private IApiRequest _api;
         private IApiRequest Api
@@ -76,10 +88,10 @@ namespace PlexSharp
                 Method = Method.POST,
                 RequestFormat = DataFormat.Json
             };
+            Setup(ref request);
+            AddHeaders(ref request, true);
+            request.AddBody(userModel);
 
-            AddHeaders(ref request);
-
-            request.AddJsonBody(userModel);
 
             var obj = Api.Execute<PlexAuthentication>(request, new Uri(SignInUri));
 
@@ -98,9 +110,10 @@ namespace PlexSharp
             };
             var request = new RestRequest
             {
-                Method = Method.POST
+                Method = Method.POST,
+                RequestFormat = DataFormat.Json
             };
-
+            Setup(ref request);
             AddHeaders(ref request);
 
             request.AddJsonBody(userModel);
@@ -110,13 +123,14 @@ namespace PlexSharp
             return obj;
         }
 
-        public PlexFriends GetUsers(string authToken)
+        public PlexFriends GetFriends(string authToken)
         {
             var request = new RestRequest
             {
                 Method = Method.GET,
+                RequestFormat = DataFormat.Xml
             };
-
+            Setup(ref request);
             AddHeaders(ref request, authToken);
 
             var users = Api.Execute<PlexFriendsWrapper>(request, new Uri(FriendsUri));
@@ -300,12 +314,17 @@ namespace PlexSharp
             AddHeaders(ref request);
         }
 
-        private void AddHeaders(ref RestRequest request)
+        private void AddHeaders(ref RestRequest request, bool json = false)
         {
             request.AddHeader("X-Plex-Client-Identifier", "Test213");
             request.AddHeader("X-Plex-Product", "Request Plex");
             request.AddHeader("X-Plex-Version", Version);
-            request.AddHeader("Content-Type", "application/xml");
+            request.AddHeader("Content-Type", json ? "application/json" : "application/xml");
+        }
+
+        private void Setup(ref RestRequest request)
+        {
+            request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
         }
     }
 }

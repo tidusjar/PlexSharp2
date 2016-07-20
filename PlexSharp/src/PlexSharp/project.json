@@ -7,24 +7,40 @@
   },
 
   "frameworks": {
+    //"netstandard1.5": {
+    //  "imports": "dnxcore50"
+    //},
     "net451": {
       "dependencies": {
-        "RestSharp.Newtonsoft.Json": "1.0.0",
+        "RestSharp.Newtonsoft.Json": "1.0.0"
+      },
+      "frameworkAssemblies": {
+        "System.Xml": "4.0.0.0"
       }
     },
     "net452": {
       "dependencies": {
-        "RestSharp.Newtonsoft.Json": "1.0.0"
+        "RestSharp.Newtonsoft.Json": "1.0.0",
+      },
+      "frameworkAssemblies": {
+        "System.Xml": "4.0.0.0"
       }
     },
     "net46": {
       "dependencies": {
-        "RestSharp.Newtonsoft.Json": "1.0.0"
+        "RestSharp.Newtonsoft.Json": "1.0.0",
+        "System.Xml.XmlDocument": "4.0.1-rc2-24027"
+      },
+      "frameworkAssemblies": {
+        "System.Xml": "4.0.0.0"
       }
     },
     "net45": {
       "dependencies": {
         "RestSharp.Newtonsoft.Json": "1.0.0"
+      },
+      "frameworkAssemblies": {
+        "System.Xml": "4.0.0.0"
       }
     }
   }
