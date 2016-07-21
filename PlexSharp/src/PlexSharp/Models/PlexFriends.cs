@@ -19,19 +19,19 @@ namespace PlexSharp.Models
 
     public class Server
     {
-        [JsonProperty("id")]
+        [JsonProperty("@id")]
         public string Id { get; set; }
-        [JsonProperty("serverId")]
+        [JsonProperty("@serverId")]
         public string ServerId { get; set; }
-        [JsonProperty("machineIdentifier")]
+        [JsonProperty("@machineIdentifier")]
         public string MachineIdentifier { get; set; }
-        [JsonProperty("name")]
+        [JsonProperty("@name")]
         public string Name { get; set; }
-        [JsonProperty("lastSeenAt")]
+        [JsonProperty("@lastSeenAt")]
         public string LastSeenAt { get; set; }
-        [JsonProperty("numLibraries")]
+        [JsonProperty("@numLibraries")]
         public string NumLibraries { get; set; }
-        [JsonProperty("owned")]
+        [JsonProperty("@owned")]
         public string Owned { get; set; }
     }
 
@@ -43,15 +43,15 @@ namespace PlexSharp.Models
         public List<Server> Server { get; set; }
         [JsonProperty("@id")]
         public string Id { get; set; }
-        [JsonProperty("title")]
+        [JsonProperty("@title")]
         public string Title { get; set; }
-        [JsonProperty("username")]
+        [JsonProperty("@username")]
         public string Username { get; set; }
-        [JsonProperty("email")]
+        [JsonProperty("@email")]
         public string Email { get; set; }
-        [JsonProperty("recommendationsPlaylistId")]
+        [JsonProperty("@recommendationsPlaylistId")]
         public string RecommendationsPlaylistId { get; set; }
-        [JsonProperty("thumb")]
+        [JsonProperty("@thumb")]
         public string Thumb { get; set; }
     }
 
@@ -60,15 +60,15 @@ namespace PlexSharp.Models
     {
         [JsonProperty("User")]
         public UserFriends[] User { get; set; }
-        [JsonProperty("friendlyName")]
+        [JsonProperty("@friendlyName")]
         public string FriendlyName { get; set; }
-        [JsonProperty("identifier")]
+        [JsonProperty("@identifier")]
         public string Identifier { get; set; }
-        [JsonProperty("machineIdentifier")]
+        [JsonProperty("@machineIdentifier")]
         public string MachineIdentifier { get; set; }
-        [JsonProperty("totalSize")]
+        [JsonProperty("@totalSize")]
         public string TotalSize { get; set; }
-        [JsonProperty("size")]
+        [JsonProperty("@size")]
         public string Size { get; set; }
     }
 

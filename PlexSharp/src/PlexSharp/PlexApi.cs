@@ -26,10 +26,7 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-
-using Newtonsoft.Json;
 
 using PlexSharp.Interfaces;
 using PlexSharp.Models;
@@ -41,64 +38,56 @@ using RestRequest = RestSharp.RestRequest;
 
 namespace PlexSharp
 {
-    public class PlexApi
+    public class PlexApi : BasePlexApi, IPlexApi
     {
         static PlexApi()
         {
             Version = Guid.NewGuid().ToString("N");
         }
 
-        private readonly JsonSerializer _settings = new JsonSerializer
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            MissingMemberHandling = MissingMemberHandling.Ignore
-        };
 
-        private IApiRequest _api;
-        private IApiRequest Api
+
+        private static string Version { get; }
+
+        public string PlexClientIdentifier
         {
             get
             {
-                if (_api != null)
+                if (string.IsNullOrEmpty(_plexClientIdentifier))
                 {
-                    return _api;
+                    return "Test123";
                 }
-                _api = new ApiRequest();
-                return _api;
+                return _plexClientIdentifier;
             }
+            set { _plexClientIdentifier = value; }
         }
 
-        private const string SignInUri = "https://plex.tv/users/sign_in.json";
-        private const string FriendsUri = "https://plex.tv/pms/friends/all";
-        private const string GetAccountUri = "https://plex.tv/users/account";
-        private static string Version { get; }
+        public string PlexProduct
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_plexProduct))
+                {
+                    return "PlexSharp";
+                }
+                return _plexProduct;
+            }
+            set { _plexProduct = value; }
+        }
 
         public PlexAuthentication SignIn(string username, string password)
         {
-            var userModel = new PlexUserRequest
-            {
-                User = new UserRequest
-                {
-                    Password = password,
-                    Login = username
-                }
-            };
-            var request = new RestRequest
-            {
-                Method = Method.POST,
-                RequestFormat = DataFormat.Json
-            };
-            Setup(ref request);
-            AddHeaders(ref request, true);
-            request.AddBody(userModel);
-
-
-            var obj = Api.Execute<PlexAuthentication>(request, new Uri(SignInUri));
-
-            return obj;
+            var request = SignInInternal(username, password);
+            return Api.Execute<PlexAuthentication>(request, new Uri(SignInUri));
         }
 
         public async Task<PlexAuthentication> SignInAsync(string username, string password)
+        {
+            var request = SignInInternal(username, password);
+            return await Api.ExecuteAsync<PlexAuthentication>(request, new Uri(SignInUri));
+        }
+
+        private IRestRequest SignInInternal(string username, string password)
         {
             var userModel = new PlexUserRequest
             {
@@ -117,13 +106,26 @@ namespace PlexSharp
             AddHeaders(ref request);
 
             request.AddJsonBody(userModel);
-
-            var obj = await Api.ExecuteAsync<PlexAuthentication>(request, new Uri(SignInUri));
-
-            return obj;
+            return request;
         }
 
+
         public PlexFriends GetFriends(string authToken)
+        {
+            var request = GetFriendsInternal(authToken);
+            var users = Api.Execute<PlexFriendsWrapper>(request, new Uri(FriendsUri));
+
+            return users.PlexFriends;
+        }
+        public async Task<PlexFriends> GetFriendsAsync(string authToken)
+        {
+            var request = GetFriendsInternal(authToken);
+            var users = await Api.ExecuteAsync<PlexFriendsWrapper>(request, new Uri(FriendsUri));
+
+            return users.PlexFriends;
+        }
+
+        private IRestRequest GetFriendsInternal(string authToken)
         {
             var request = new RestRequest
             {
@@ -131,44 +133,20 @@ namespace PlexSharp
                 RequestFormat = DataFormat.Xml
             };
             Setup(ref request);
-            AddHeaders(ref request, authToken);
-
-            var users = Api.Execute<PlexFriendsWrapper>(request, new Uri(FriendsUri));
-
-            return users.PlexFriends;
-        }
-        public async Task<PlexFriends> GetUsersAsync(string authToken)
-        {
-            var request = new RestRequest
-            {
-                Method = Method.GET,
-            };
-
-            AddHeaders(ref request, authToken);
-
-            var users = await Api.ExecuteAsync<PlexFriendsWrapper>(request, new Uri(FriendsUri));
-
-            return users.PlexFriends;
+            AddAuthHeader(ref request, authToken);
+            return request;
         }
 
         /// <summary>
-        /// Gets the users.
+        /// Returns search results.
         /// </summary>
-        /// <param name="authToken">The authentication token.</param>
+        /// <param name="authToken">The Plex authentication token.</param>
         /// <param name="searchTerm">The search term.</param>
-        /// <param name="plexFullHost">The full plex host.</param>
+        /// <param name="plexFullHost">The hostname or IP of the Plex Instance</param>
         /// <returns></returns>
         public PlexSearch SearchContent(string authToken, string searchTerm, Uri plexFullHost)
         {
-            var request = new RestRequest
-            {
-                Method = Method.GET,
-                Resource = "search?query={searchTerm}"
-            };
-
-            request.AddUrlSegment("searchTerm", searchTerm);
-            AddHeaders(ref request, authToken);
-
+            var request = SearchContentInternal(authToken, searchTerm);
             var search = Api.Execute<PlexSearchWrapper>(request, plexFullHost);
 
             return search.PlexSearch;
@@ -176,6 +154,14 @@ namespace PlexSharp
 
         public async Task<PlexSearch> SearchContentAsync(string authToken, string searchTerm, Uri plexFullHost)
         {
+            var request = SearchContentInternal(authToken, searchTerm);
+            var search = await Api.ExecuteAsync<PlexSearchWrapper>(request, plexFullHost);
+
+            return search.PlexSearch;
+        }
+
+        private IRestRequest SearchContentInternal(string authToken, string searchTerm)
+        {
             var request = new RestRequest
             {
                 Method = Method.GET,
@@ -183,11 +169,8 @@ namespace PlexSharp
             };
 
             request.AddUrlSegment("searchTerm", searchTerm);
-            AddHeaders(ref request, authToken);
-
-            var search = await Api.ExecuteAsync<PlexSearchWrapper>(request, plexFullHost);
-
-            return search.PlexSearch;
+            AddAuthHeader(ref request, authToken);
+            return request;
         }
 
         public PlexStatus GetStatus(string authToken, Uri uri)
@@ -197,7 +180,7 @@ namespace PlexSharp
                 Method = Method.GET,
             };
 
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var users = Api.Execute<PlexStatusWrapper>(request, uri);
 
@@ -211,7 +194,7 @@ namespace PlexSharp
                 Method = Method.GET,
             };
 
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var users = await Api.ExecuteAsync<PlexStatusWrapper>(request, uri);
 
@@ -225,7 +208,7 @@ namespace PlexSharp
                 Method = Method.GET,
             };
 
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var account = Api.Execute<PlexAccountWrapper>(request, new Uri(GetAccountUri));
 
@@ -239,7 +222,7 @@ namespace PlexSharp
                 Method = Method.GET,
             };
 
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var account = await Api.ExecuteAsync<PlexAccountWrapper>(request, new Uri(GetAccountUri));
 
@@ -254,7 +237,7 @@ namespace PlexSharp
                 Resource = "library/sections"
             };
 
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var lib = Api.Execute<PlexLibrariesWrapper>(request, plexFullHost);
 
@@ -269,7 +252,7 @@ namespace PlexSharp
                 Resource = "library/sections"
             };
 
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var lib = await Api.ExecuteAsync<PlexLibrariesWrapper>(request, plexFullHost);
 
@@ -285,7 +268,7 @@ namespace PlexSharp
             };
 
             request.AddUrlSegment("libraryId", libraryId);
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var lib = Api.Execute<PlexSearchWrapper>(request, plexFullHost);
 
@@ -301,14 +284,14 @@ namespace PlexSharp
             };
 
             request.AddUrlSegment("libraryId", libraryId);
-            AddHeaders(ref request, authToken);
+            AddAuthHeader(ref request, authToken);
 
             var lib = await Api.ExecuteAsync<PlexSearchWrapper>(request, plexFullHost);
 
             return lib.PlexSearch;
         }
 
-        private void AddHeaders(ref RestRequest request, string authToken)
+        private void AddAuthHeader(ref RestRequest request, string authToken)
         {
             request.AddHeader("X-Plex-Token", authToken);
             AddHeaders(ref request);
@@ -316,15 +299,15 @@ namespace PlexSharp
 
         private void AddHeaders(ref RestRequest request, bool json = false)
         {
-            request.AddHeader("X-Plex-Client-Identifier", "Test213");
-            request.AddHeader("X-Plex-Product", "Request Plex");
+            request.AddHeader("X-Plex-Client-Identifier", PlexClientIdentifier);
+            request.AddHeader("X-Plex-Product", PlexProduct);
             request.AddHeader("X-Plex-Version", Version);
             request.AddHeader("Content-Type", json ? "application/json" : "application/xml");
         }
 
         private void Setup(ref RestRequest request)
         {
-            request.JsonSerializer = new NewtonsoftJsonSerializer(_settings);
+            request.JsonSerializer = new NewtonsoftJsonSerializer(Settings);
         }
     }
 }

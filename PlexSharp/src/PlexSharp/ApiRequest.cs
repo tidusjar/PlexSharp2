@@ -26,20 +26,17 @@
 #endregion
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 using PlexSharp.Interfaces;
 
 using RestSharp;
-using RestSharp.Newtonsoft.Json;
 
 namespace PlexSharp
 {
-    internal class ApiRequest : IApiRequest
+    internal sealed class ApiRequest : IApiRequest
     {
         /// <summary>
         /// An API request handler
@@ -56,41 +53,22 @@ namespace PlexSharp
             var client = new RestClient { BaseUrl = baseUri };
 
             var response = client.Execute(request);
-            var json = response.Content;
-            if (response.ErrorException != null)
-            {
-                var message = "Error retrieving response. Check inner details for more info.";
-
-                throw new ApiRequestException(message, response.ErrorException);
-            }
-
-            if (IsXmlDocument(response.Content))
-            {
-                var doc = new XmlDocument();
-                doc.LoadXml(json);
-                json = JsonConvert.SerializeXmlNode(doc); // convert it into JSON
-                Debug.WriteLine(json);
-            }
-
-
-            var obj = JsonConvert.DeserializeObject<T>(json);
-            return obj;
+            return ReturnData<T>(response);
         }
 
+        /// <summary>
+        /// Executes the request asynchronously.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="request">The request.</param>
+        /// <param name="baseUri">The base URI.</param>
+        /// <returns></returns>
         public async Task<T> ExecuteAsync<T>(IRestRequest request, Uri baseUri) where T : new()
         {
             var client = new RestClient { BaseUrl = baseUri };
 
-            var response = await client.ExecuteTaskAsync<T>(request);
-
-            if (response.ErrorException != null)
-            {
-                var message = "Error retrieving response. Check inner details for more info.";
-
-                throw new ApiRequestException(message, response.ErrorException);
-            }
-
-            return response.Data;
+            var response = await client.ExecuteTaskAsync(request);
+            return ReturnData<T>(response);
         }
 
         /// <summary>
@@ -106,33 +84,75 @@ namespace PlexSharp
 
             var response = client.Execute(request);
 
-            if (response.ErrorException != null)
-            {
-                var message = "Error retrieving response. Check inner details for more info.";
-                throw new ApiRequestException(message, response.ErrorException);
-            }
+            CheckException(response);
 
             return response;
         }
 
+        /// <summary>
+        /// Executes the request asynchronously and returns the RestResponse.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="baseUri">The base URI.</param>
+        /// <returns></returns>
         public async Task<IRestResponse> ExecuteAsync(IRestRequest request, Uri baseUri)
         {
             var client = new RestClient { BaseUrl = baseUri };
 
             var response = await client.ExecuteTaskAsync(request);
 
-            if (response.ErrorException != null)
-            {
-                var message = "Error retrieving response. Check inner details for more info.";
-                throw new ApiRequestException(message, response.ErrorException);
-            }
+            CheckException(response);
 
             return response;
         }
 
+        /// <summary>
+        /// Determines whether the response is in XML.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        /// <returns></returns>
         private bool IsXmlDocument(string response)
         {
             return response.TrimStart().StartsWith("<", StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Checks the content type and deserializes the result.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="response">The response.</param>
+        /// <returns></returns>
+        private T ReturnData<T>(IRestResponse response)
+        {
+            CheckException(response);
+            var json = response.Content;
+
+            if (IsXmlDocument(response.Content))
+            {
+                var doc = new XmlDocument();
+                doc.LoadXml(json);
+                json = JsonConvert.SerializeXmlNode(doc); // convert it into JSON
+                Debug.WriteLine(json);
+            }
+
+
+            var obj = JsonConvert.DeserializeObject<T>(json);
+            return obj;
+        }
+
+        /// <summary>
+        /// Checks to see if the response has an exception.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        /// <exception cref="ApiRequestException"></exception>
+        private void CheckException(IRestResponse response)
+        {
+            if (response.ErrorException != null)
+            {
+                var message = "Error retrieving response. Check inner details for more info.";
+
+                throw new ApiRequestException(message, response.ErrorException);
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ using RestSharp;
 
 namespace PlexSharp.Interfaces
 {
-    public interface IApiRequest
+    internal interface IApiRequest
     {
         T Execute<T>(IRestRequest request, Uri baseUri) where T : new();
         Task<T> ExecuteAsync<T>(IRestRequest request, Uri baseUri) where T : new();

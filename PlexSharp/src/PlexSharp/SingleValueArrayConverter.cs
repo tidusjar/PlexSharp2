@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace PlexSharp
 {
-    public class SingleValueArrayConverter<T> : JsonConverter
+    internal sealed class SingleValueArrayConverter<T> : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
@@ -14,11 +14,11 @@ namespace PlexSharp
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            object retVal = new Object();
+            var retVal = new object();
             if (reader.TokenType == JsonToken.StartObject)
             {
-                T instance = (T)serializer.Deserialize(reader, typeof(T));
-                retVal = new List<T>() { instance };
+                var instance = (T)serializer.Deserialize(reader, typeof(T));
+                retVal = new List<T> { instance };
             }
             else if (reader.TokenType == JsonToken.StartArray)
             {
